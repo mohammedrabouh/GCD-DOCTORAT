@@ -105,12 +105,12 @@ export const PublicLayout: React.FC<PublicLayoutProps> = ({
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-900">DOCTORIA</span>
             <span>—</span>
-            <span>Portail Universitaire de Gestion du Cycle Doctoral (Maroc)</span>
+            <span>Université Sidi Mohamed Ben Abdellah (USMBA) · Fès · CEDoc</span>
           </div>
           <div className="flex items-center gap-3 text-slate-400">
-            <span>Remplacement du système GCD</span>
+            <span>Centres d’Études Doctorales (CED-ST & CED-LSHJES)</span>
             <span>·</span>
-            <span className="font-mono text-[11px]">Prototype Local Indépendant</span>
+            <span className="font-mono text-[11px]">Plateforme Doctorale Officielle</span>
           </div>
         </div>
       </footer>

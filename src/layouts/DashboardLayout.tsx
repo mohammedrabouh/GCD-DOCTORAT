@@ -116,7 +116,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   DOCTORIA
                 </span>
                 <span className="text-[10px] font-semibold text-slate-400 tracking-wider uppercase mt-0.5">
-                  Cycle Doctoral
+                  USMBA Fès · CEDoc
                 </span>
               </div>
             </div>
@@ -124,7 +124,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
           {/* Zone 2: Middle Breadcrumb / Section Context */}
           <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 font-medium truncate">
-            <span>Portail Universitaire</span>
+            <span>USMBA Fès</span>
+            <span aria-hidden="true">·</span>
+            <span>CEDoc</span>
             <span aria-hidden="true">·</span>
             <span className="text-slate-900 font-semibold truncate">
               {navItems.find((item) => item.id === currentTab)?.label || 'Espace de Travail'}

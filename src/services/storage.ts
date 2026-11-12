@@ -21,20 +21,21 @@ import {
   ReinscriptionStatus,
 } from '../types';
 import { hashPassword } from '../constants';
+import { USMBA_ESTABLISHMENTS, USMBA_LABORATORIES, USMBA_THESIS_SUBJECTS } from '../data/usmbaSubjects';
 
 const STORAGE_KEYS = {
-  USERS: 'doctoria_users_v1',
-  CAMPAIGNS: 'doctoria_campaigns_v1',
-  ESTABLISHMENTS: 'doctoria_establishments_v1',
-  LABORATORIES: 'doctoria_laboratories_v1',
-  SUBJECTS: 'doctoria_subjects_v1',
-  CANDIDATURES: 'doctoria_candidatures_v1',
-  DOCUMENTS: 'doctoria_documents_meta_v1',
-  REINSCRIPTIONS: 'doctoria_reinscriptions_v1',
-  NOTIFICATIONS: 'doctoria_notifications_v1',
-  AUDIT_LOGS: 'doctoria_audit_logs_v1',
-  CURRENT_USER_SESSION: 'doctoria_session_v1',
-  INITIALIZED: 'doctoria_db_initialized_v1',
+  USERS: 'doctoria_users_v2',
+  CAMPAIGNS: 'doctoria_campaigns_v2',
+  ESTABLISHMENTS: 'doctoria_establishments_v2',
+  LABORATORIES: 'doctoria_laboratories_v2',
+  SUBJECTS: 'doctoria_subjects_v2',
+  CANDIDATURES: 'doctoria_candidatures_v2',
+  DOCUMENTS: 'doctoria_documents_meta_v2',
+  REINSCRIPTIONS: 'doctoria_reinscriptions_v2',
+  NOTIFICATIONS: 'doctoria_notifications_v2',
+  AUDIT_LOGS: 'doctoria_audit_logs_v2',
+  CURRENT_USER_SESSION: 'doctoria_session_v2',
+  INITIALIZED: 'doctoria_db_initialized_v2_usmba',
 };
 
 type Listener = () => void;
@@ -80,66 +81,17 @@ function setItem<T>(key: string, value: T): void {
 
 export const StorageService = {
   // ==========================================
-  // INITIAL SEEDING
+  // INITIAL SEEDING — UNIVERSITÉ SIDI MOHAMED BEN ABDELLAH (USMBA)
   // ==========================================
   async initialize(): Promise<void> {
     const isInit = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
     if (isInit) return;
 
-    // 1. Establishments
-    const establishments: Establishment[] = [
-      {
-        id: 'est_ensias',
-        code: 'ENSIAS',
-        name: "École Nationale Supérieure d'Informatique et d'Analyse des Systèmes",
-        city: 'Rabat',
-        universityName: 'Université Mohammed V de Rabat',
-      },
-      {
-        id: 'est_fsr',
-        code: 'FSR',
-        name: 'Faculté des Sciences de Rabat',
-        city: 'Rabat',
-        universityName: 'Université Mohammed V de Rabat',
-      },
-      {
-        id: 'est_fsjes',
-        code: 'FSJES-A',
-        name: 'Faculté des Sciences Juridiques, Économiques et Sociales Agdal',
-        city: 'Rabat',
-        universityName: 'Université Mohammed V de Rabat',
-      },
-    ];
-    setItem(STORAGE_KEYS.ESTABLISHMENTS, establishments);
+    // 1. Establishments (FSDM, FST, ENSA, FSJES, ENCG, FMPDF, FLSH)
+    setItem(STORAGE_KEYS.ESTABLISHMENTS, USMBA_ESTABLISHMENTS);
 
     // 2. Laboratories
-    const laboratories: Laboratory[] = [
-      {
-        id: 'lab_liase',
-        code: 'LIASE',
-        name: "Laboratoire d'Intelligence Artificielle et Systèmes Embarqués",
-        establishmentId: 'est_ensias',
-        directorName: 'Prof. Mohammed Alami',
-        researchPole: 'Sciences et Technologies',
-      },
-      {
-        id: 'lab_list',
-        code: 'LIST',
-        name: "Laboratoire d'Informatique, Systèmes et Télécommunications",
-        establishmentId: 'est_fsr',
-        directorName: 'Prof. Nadia Chraibi',
-        researchPole: 'Sciences Mathématiques et Informatiques',
-      },
-      {
-        id: 'lab_geol',
-        code: 'LGRG',
-        name: 'Laboratoire de Géophysique, Risques Géologiques et Environnement',
-        establishmentId: 'est_fsr',
-        directorName: 'Prof. Ahmed Touzani',
-        researchPole: 'Sciences de la Terre',
-      },
-    ];
-    setItem(STORAGE_KEYS.LABORATORIES, laboratories);
+    setItem(STORAGE_KEYS.LABORATORIES, USMBA_LABORATORIES);
 
     // 3. Campaigns
     const now = new Date();
@@ -149,185 +101,172 @@ export const StorageService = {
 
     const campaigns: DoctoralCampaign[] = [
       {
-        id: 'camp_2026_2027',
-        code: 'DOC-2026-2027',
-        title: 'Campagne Doctorale Nationale 2026-2027',
+        id: 'camp_usmba_2026_2027',
+        code: 'DOC-USMBA-2026-2027',
+        title: 'Campagne Doctorale USMBA 2026-2027',
         academicYear: '2026-2027',
         startDate: startDate,
         endDate: endDate,
         registrationDeadline: registrationDeadline,
         isActive: true,
-        description: "Campagne officielle d'admission et réinscription au cycle doctoral du Pôle Sciences et Technologies.",
+        description: 'Campagne officielle des Centres d’Études Doctorales (CED-ST et CED-LSHJES) de l’Université Sidi Mohamed Ben Abdellah.',
         maxCandidaturesPerCandidate: 3,
         allowWaitlistPromotion: true,
       },
     ];
     setItem(STORAGE_KEYS.CAMPAIGNS, campaigns);
 
-    // 4. Accounts (Pre-hashed passwords)
+    // 4. Accounts (Pre-hashed passwords with @usmba.ac.ma official domain)
     // admin: DoctoriaAdmin2026!
-    // dt: DirecteurThese2026!
     // ds: DirecteurStructure2026!
+    // dt: DirecteurThese2026!
     // candidat: Candidat2026!
     const adminHash = await hashPassword('DoctoriaAdmin2026!');
-    const dtHash = await hashPassword('DirecteurThese2026!');
     const dsHash = await hashPassword('DirecteurStructure2026!');
+    const dtHash = await hashPassword('DirecteurThese2026!');
     const candidatHash = await hashPassword('Candidat2026!');
 
     const users: User[] = [
       {
-        id: 'user_admin_01',
-        email: 'admin@doctoria.ac.ma',
+        id: 'user_admin_cedoc',
+        email: 'admin.cedoc@usmba.ac.ma',
         passwordHash: adminHash,
         firstName: 'Karim',
         lastName: 'El Mansouri',
         role: 'ADMINISTRATEUR',
         status: 'ACTIF',
-        phone: '+212 5 37 77 18 18',
-        grade: 'Administrateur Principal SI',
+        phone: '+212 5 35 60 96 60',
+        grade: 'Administrateur Principal SI - CEDoc USMBA',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
       {
-        id: 'user_dt_alami',
-        email: 'dt.alami@doctoria.ac.ma',
+        id: 'user_ds_kaaouachi',
+        email: 'abdelali.kaaouachi@usmba.ac.ma',
+        passwordHash: dsHash,
+        firstName: 'Abdelali',
+        lastName: 'Kaaouachi',
+        role: 'DIRECTEUR_STRUCTURE',
+        status: 'ACTIF',
+        phone: '+212 5 35 60 80 14',
+        establishmentId: 'est_fsdm',
+        specialty: 'Statistiques & Évaluation de la Recherche',
+        grade: 'Directeur du CEDoc USMBA - Professeur de l’Enseignement Supérieur (PES)',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'usr_enc_qaraqe',
+        email: 'mohammed.qaraqe@usmba.ac.ma',
         passwordHash: dtHash,
         firstName: 'Mohammed',
-        lastName: 'Alami',
+        lastName: 'Qaraqe',
         role: 'DIRECTEUR_THESE',
         status: 'ACTIF',
-        phone: '+212 6 61 23 45 67',
-        establishmentId: 'est_ensias',
-        laboratoryId: 'lab_liase',
-        specialty: 'Intelligence Artificielle & Vision par Ordinateur',
+        phone: '+212 6 61 24 55 89',
+        establishmentId: 'est_fsdm',
+        laboratoryId: 'lab_lisac',
+        specialty: 'Informatique & Intelligence Artificielle',
         grade: 'Professeur de l’Enseignement Supérieur (PES)',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
       {
-        id: 'user_dt_chraibi',
-        email: 'dt.chraibi@doctoria.ac.ma',
+        id: 'usr_enc_zenkouar',
+        email: 'khalid.zenkouar@usmba.ac.ma',
         passwordHash: dtHash,
-        firstName: 'Nadia',
-        lastName: 'Chraibi',
+        firstName: 'Khalid',
+        lastName: 'Zenkouar',
         role: 'DIRECTEUR_THESE',
         status: 'ACTIF',
-        phone: '+212 6 62 88 99 00',
-        establishmentId: 'est_fsr',
-        laboratoryId: 'lab_list',
-        specialty: 'Cryptographie & Sécurité des Systèmes Distribués',
+        phone: '+212 6 62 10 33 44',
+        establishmentId: 'est_ensa',
+        laboratoryId: 'lab_lisa',
+        specialty: 'Traitement du Signal & Systèmes Intelligents',
+        grade: 'Professeur de l’Enseignement Supérieur (PES)',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'usr_enc_benbrahim',
+        email: 'mohammed.benbrahim@usmba.ac.ma',
+        passwordHash: dtHash,
+        firstName: 'Mohammed',
+        lastName: 'Benbrahim',
+        role: 'DIRECTEUR_THESE',
+        status: 'ACTIF',
+        phone: '+212 6 63 45 78 90',
+        establishmentId: 'est_fst',
+        laboratoryId: 'lab_lerse',
+        specialty: 'Énergies Renouvelables & Systèmes Électroniques',
         grade: 'Professeur Habilité (PH)',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
       {
-        id: 'user_ds_bennani',
-        email: 'ds.bennani@doctoria.ac.ma',
-        passwordHash: dsHash,
-        firstName: 'Fatima',
-        lastName: 'Bennani',
-        role: 'DIRECTEUR_STRUCTURE',
+        id: 'usr_enc_hmina',
+        email: 'nabil.hmina@usmba.ac.ma',
+        passwordHash: dtHash,
+        firstName: 'Nabil',
+        lastName: 'Hmina',
+        role: 'DIRECTEUR_THESE',
         status: 'ACTIF',
-        phone: '+212 5 37 67 00 20',
-        establishmentId: 'est_ensias',
-        specialty: 'Génie Logiciel & Gouvernance Universitaire',
-        grade: 'Directrice du Centre d’Études Doctorales (CED)',
+        phone: '+212 6 61 70 80 90',
+        establishmentId: 'est_ensa',
+        laboratoryId: 'lab_labtic',
+        specialty: 'Télécommunications & Cybersécurité',
+        grade: 'Professeur de l’Enseignement Supérieur (PES)',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'usr_enc_amine',
+        email: 'amina.amine@usmba.ac.ma',
+        passwordHash: dtHash,
+        firstName: 'Amina',
+        lastName: 'Amine',
+        role: 'DIRECTEUR_THESE',
+        status: 'ACTIF',
+        phone: '+212 6 64 12 34 88',
+        establishmentId: 'est_encg',
+        laboratoryId: 'lab_larego',
+        specialty: 'Management Stratégique & Économie Circulaire',
+        grade: 'Professeur de l’Enseignement Supérieur (PES)',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
       {
         id: 'user_candidat_youssef',
-        email: 'candidat.youssef@doctoria.ac.ma',
+        email: 'youssef.elamrani@usmba.ac.ma',
         passwordHash: candidatHash,
         firstName: 'Youssef',
         lastName: 'El Amrani',
         role: 'CANDIDAT',
         status: 'ACTIF',
         phone: '+212 6 70 12 34 56',
-        cin: 'AB123456',
-        cne: 'R130987654',
+        cin: 'CD782910',
+        cne: 'N134098712',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
     ];
     setItem(STORAGE_KEYS.USERS, users);
 
-    // 5. Initial Thesis Subjects
-    const subjects: ThesisSubject[] = [
-      {
-        id: 'subj_ai_oncology',
-        code: 'TH-2026-IA-01',
-        title: "Optimisation des architectures d'apprentissage profond pour l'analyse d'images médicales oncologiques",
-        description: "Ce travail de thèse vise à concevoir des modèles d'attention visuelle et des auto-encodeurs variationnels capables de segmenter avec une haute précision les lésions tumorales complexes à partir d'IRM multiséquentielles. Une collaboration avec les centres hospitaliers universitaires de Rabat est prévue.",
-        keywords: ['Deep Learning', 'Imagerie Médicale', 'Vision par Ordinateur', 'IRM', 'Oncologie Numérique'],
-        discipline: 'Informatique & Intelligence Artificielle',
-        laboratoryId: 'lab_liase',
-        establishmentId: 'est_ensias',
-        supervisorId: 'user_dt_alami',
-        supervisorName: 'Prof. Mohammed Alami',
-        availableSeats: 2,
-        admittedCount: 0,
-        requirements: "Titulaire d'un Master de recherche en Informatique, Data Science ou d'un Diplôme d'Ingénieur en Informatique avec de solides compétences en PyTorch, algèbre linéaire et traitement d'images.",
-        campaignId: 'camp_2026_2027',
-        status: 'PUBLIE',
-        publishedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: 'subj_crypto_iot',
-        code: 'TH-2026-CYBER-02',
-        title: "Sécurité et résilience des protocoles cryptographiques post-quantiques dans l'Internet des Objets (IoT)",
-        description: "Face à l'avènement des calculateurs quantiques, ce projet doctoral explore l'intégration de schémas de chiffrement basés sur les réseaux euclidiens (lattice-based cryptography) sur des microcontrôleurs à très faibles ressources énergétiques et calculatoires.",
-        keywords: ['Cryptographie Post-Quantique', 'Cybersécurité', 'IoT', 'Réseaux Euclidiens', 'Systèmes Embarqués'],
-        discipline: 'Réseaux & Cybersécurité',
-        laboratoryId: 'lab_list',
-        establishmentId: 'est_fsr',
-        supervisorId: 'user_dt_chraibi',
-        supervisorName: 'Prof. Nadia Chraibi',
-        availableSeats: 1,
-        admittedCount: 0,
-        requirements: "Diplôme d'Ingénieur ou Master spécialisé en Cybersécurité, Réseaux ou Mathématiques Appliquées. Solides bases en C/Rust embarqué et théorie de la complexité.",
-        campaignId: 'camp_2026_2027',
-        status: 'PUBLIE',
-        publishedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: 'subj_nlp_darija',
-        code: 'TH-2026-NLP-03',
-        title: 'Modèles de langage multimodaux appliqués au dialecte marocain (Darija) et aux services publics numériques',
-        description: "Développement de modèles de fondation spécifiques au traitement automatique de la Darija marocaine (en caractères arabes et latins arabizi). L'objectif est de fluidifier l'accès citoyen aux portails administratifs dématérialisés via des agents conversationnels souverains.",
-        keywords: ['NLP', 'Darija', 'LLM', 'Dialectologie Computationnelle', 'E-Gouvernement'],
-        discipline: 'Traitement Automatique du Langage Naturel',
-        laboratoryId: 'lab_liase',
-        establishmentId: 'est_ensias',
-        supervisorId: 'user_dt_alami',
-        supervisorName: 'Prof. Mohammed Alami',
-        availableSeats: 1,
-        admittedCount: 0,
-        requirements: 'Master en Informatique, Sciences Cognitives ou Traitement du Signal. Expérience préalable en NLP et fine-tuning de modèles de langage.',
-        campaignId: 'camp_2026_2027',
-        status: 'SOUMIS_VALIDATION', // Ready for Structure Director to validate & publish!
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-    setItem(STORAGE_KEYS.SUBJECTS, subjects);
+    // 5. 32 USMBA Thesis Subjects (Across all 17 requested disciplines)
+    setItem(STORAGE_KEYS.SUBJECTS, USMBA_THESIS_SUBJECTS);
 
     // Initial audit log
     const auditLogs: AuditLog[] = [
       {
-        id: 'audit_init',
+        id: 'audit_init_usmba',
         timestamp: new Date().toISOString(),
-        userId: 'user_admin_01',
+        userId: 'user_admin_cedoc',
         userName: 'Karim El Mansouri',
         userRole: 'ADMINISTRATEUR',
         action: 'INITIALISATION_SYSTEME',
         entityType: 'CAMPAIGN',
-        entityId: 'camp_2026_2027',
-        details: 'Initialisation de la plateforme DOCTORIA pour la campagne 2026-2027.',
+        entityId: 'camp_usmba_2026_2027',
+        details: 'Initialisation de la plateforme DOCTORIA pour les centres d’études doctorales de l’USMBA (32 sujets accrédités).',
       },
     ];
     setItem(STORAGE_KEYS.AUDIT_LOGS, auditLogs);
@@ -538,14 +477,19 @@ export const StorageService = {
     description: string;
     keywords: string[];
     discipline: string;
+    domain?: string;
+    problematique?: string;
+    objectifs?: string[];
+    methodologie?: string;
     laboratoryId: string;
     establishmentId: string;
     availableSeats: number;
     requirements: string;
     campaignId: string;
     coSupervisorName?: string;
+    academicYear?: string;
   }, supervisor: User): ThesisSubject {
-    const code = `TH-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
+    const code = `USMBA-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
     const newSubject: ThesisSubject = {
       id: `subj_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       code,
@@ -553,16 +497,24 @@ export const StorageService = {
       description: subjectData.description.trim(),
       keywords: subjectData.keywords,
       discipline: subjectData.discipline.trim(),
+      domain: subjectData.domain || 'Sciences et Technologies',
+      problematique: subjectData.problematique,
+      objectifs: subjectData.objectifs || [],
+      methodologie: subjectData.methodologie,
       laboratoryId: subjectData.laboratoryId,
       establishmentId: subjectData.establishmentId,
       supervisorId: supervisor.id,
       supervisorName: `Prof. ${supervisor.firstName} ${supervisor.lastName}`,
+      supervisorEmail: supervisor.email,
       coSupervisorName: subjectData.coSupervisorName?.trim(),
       availableSeats: Math.max(1, subjectData.availableSeats),
       admittedCount: 0,
       requirements: subjectData.requirements.trim(),
       campaignId: subjectData.campaignId,
+      academicYear: subjectData.academicYear || '2026-2027',
       status: 'SOUMIS_VALIDATION', // Submitted directly for validation to structure director
+      statutOffre: 'OUVERT',
+      isDemo: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

@@ -329,10 +329,11 @@ export const AdminAccounts: React.FC = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="nom@doctoria.ac.ma"
+                    placeholder="prenom.nom@usmba.ac.ma"
                     className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+                <p className="text-[11px] text-slate-500 mt-1">Domaine institutionnel officiel : @usmba.ac.ma</p>
               </div>
 
               <div>

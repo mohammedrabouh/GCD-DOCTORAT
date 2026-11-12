@@ -243,7 +243,63 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccessRedirect, onBackToC
                 )}
               </button>
 
-              <div className="pt-4 border-t border-slate-100 text-center">
+              {/* Comptes institutionnels USMBA certifiés pour démonstration et évaluation */}
+              <div className="pt-4 border-t border-slate-200">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
+                  Profils USMBA de démonstration (1-clic) :
+                </p>
+                <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginEmail('admin.cedoc@usmba.ac.ma');
+                      setLoginPassword('DoctoriaAdmin2026!');
+                    }}
+                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
+                  >
+                    <span className="font-bold text-slate-800 block truncate">Administrateur</span>
+                    <span className="text-[10px] text-slate-500 truncate block">admin.cedoc@usmba.ac.ma</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginEmail('abdelali.kaaouachi@usmba.ac.ma');
+                      setLoginPassword('DirecteurStructure2026!');
+                    }}
+                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
+                  >
+                    <span className="font-bold text-slate-800 block truncate">Dir. Structure</span>
+                    <span className="text-[10px] text-slate-500 truncate block">Prof. A. Kaaouachi</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginEmail('mohammed.qaraqe@usmba.ac.ma');
+                      setLoginPassword('DirecteurThese2026!');
+                    }}
+                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
+                  >
+                    <span className="font-bold text-slate-800 block truncate">Directeur Thèse</span>
+                    <span className="text-[10px] text-slate-500 truncate block">Prof. M. Qaraqe</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoginEmail('youssef.elamrani@usmba.ac.ma');
+                      setLoginPassword('Candidat2026!');
+                    }}
+                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
+                  >
+                    <span className="font-bold text-slate-800 block truncate">Candidat / Doctorant</span>
+                    <span className="text-[10px] text-slate-500 truncate block">Y. El Amrani (Démo)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 text-center">
                 <button
                   type="button"
                   onClick={onBackToCatalogue}

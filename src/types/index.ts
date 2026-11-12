@@ -65,23 +65,33 @@ export type SubjectStatus =
   | 'PUBLIE'
   | 'ARCHIVE';
 
+export type SubjectAvailability = 'OUVERT' | 'FERME' | 'COMPLET';
+
 export interface ThesisSubject {
   id: string;
   code: string;
   title: string;
   description: string;
-  keywords: string[];
   discipline: string;
+  domain: string; // Domaine scientifique
+  keywords: string[];
+  problematique?: string; // Problématique scientifique détaillée
+  objectifs?: string[]; // Objectifs scientifiques
+  methodologie?: string; // Méthodologie envisagée
+  requirements: string; // Prérequis académiques
   laboratoryId: string;
   establishmentId: string;
-  supervisorId: string; // Directeur de thèse
+  supervisorId: string; // Directeur de thèse / Encadrant
   supervisorName: string;
+  supervisorEmail?: string;
   coSupervisorName?: string;
   availableSeats: number;
   admittedCount: number;
-  requirements: string;
   campaignId: string;
-  status: SubjectStatus;
+  academicYear: string; // e.g. "2026-2027"
+  status: SubjectStatus; // Workflow status
+  statutOffre: SubjectAvailability; // Ouvert, Fermé, Complet
+  isDemo?: boolean; // Données d'expérimentation identifiées
   validationComment?: string;
   publishedAt?: string;
   createdAt: string;

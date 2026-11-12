@@ -236,14 +236,23 @@ export const PublicCataloguePage: React.FC<PublicCataloguePageProps> = ({
                 className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs hover:border-blue-400 hover:shadow-sm transition-all flex flex-col justify-between"
               >
                 <div>
-                  {/* Metadata line without pill sandwich */}
-                  <div className="flex items-center gap-2 text-xs text-slate-500 mb-2 font-medium">
-                    <span className="text-blue-700 font-bold">{subj.code}</span>
-                    <span aria-hidden="true">·</span>
-                    <span className="truncate">{subj.discipline}</span>
-                    <span aria-hidden="true">·</span>
-                    <span className="tabular-nums font-semibold text-slate-700">
-                      {subj.availableSeats} place{subj.availableSeats > 1 ? 's' : ''}
+                  {/* Metadata line */}
+                  <div className="flex items-center justify-between text-xs mb-2">
+                    <div className="flex items-center gap-1.5 font-medium text-slate-500 truncate">
+                      <span className="text-blue-700 font-bold">{subj.code}</span>
+                      <span aria-hidden="true">·</span>
+                      <span className="truncate">{subj.discipline}</span>
+                    </div>
+                    <span
+                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-sm shrink-0 ${
+                        subj.statutOffre === 'COMPLET'
+                          ? 'bg-amber-100 text-amber-800'
+                          : subj.statutOffre === 'FERME'
+                          ? 'bg-rose-100 text-rose-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      {subj.statutOffre || 'OUVERT'}
                     </span>
                   </div>
 
@@ -253,6 +262,12 @@ export const PublicCataloguePage: React.FC<PublicCataloguePageProps> = ({
                   >
                     {subj.title}
                   </h3>
+
+                  {subj.domain && (
+                    <p className="text-[11px] font-semibold text-slate-500 mb-2">
+                      Domaine : <span className="text-slate-700">{subj.domain}</span>
+                    </p>
+                  )}
 
                   <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-4">
                     {subj.description}
@@ -278,9 +293,14 @@ export const PublicCataloguePage: React.FC<PublicCataloguePageProps> = ({
 
                 <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
                   <div className="text-xs text-slate-500 flex flex-col gap-1">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span className="font-semibold text-slate-800 truncate">{subj.supervisorName}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 truncate">
+                        <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="font-semibold text-slate-800 truncate">{subj.supervisorName}</span>
+                      </div>
+                      <span className="text-[11px] text-slate-600 font-medium">
+                        {subj.availableSeats} place{subj.availableSeats > 1 ? 's' : ''}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1.5 truncate text-[11px]">
                       <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -316,12 +336,18 @@ export const PublicCataloguePage: React.FC<PublicCataloguePageProps> = ({
       {/* Details Modal */}
       {selectedSubject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-xl shadow-2xl border border-slate-200 max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-2 text-xs font-mono text-blue-700 font-bold">
                 <span>{selectedSubject.code}</span>
                 <span>·</span>
                 <span>{selectedSubject.discipline}</span>
+                {selectedSubject.domain && (
+                  <>
+                    <span>·</span>
+                    <span className="text-slate-600">{selectedSubject.domain}</span>
+                  </>
+                )}
               </div>
               <button
                 onClick={() => setSelectedSubject(null)}
@@ -347,6 +373,44 @@ export const PublicCataloguePage: React.FC<PublicCataloguePageProps> = ({
                 </p>
               </div>
 
+              {selectedSubject.problematique && (
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Problématique scientifique
+                  </h4>
+                  <p className="text-sm text-slate-700 leading-relaxed bg-blue-50/50 p-3.5 rounded-lg border border-blue-100">
+                    {selectedSubject.problematique}
+                  </p>
+                </div>
+              )}
+
+              {selectedSubject.objectifs && selectedSubject.objectifs.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Objectifs scientifiques visés
+                  </h4>
+                  <ul className="space-y-1.5">
+                    {selectedSubject.objectifs.map((obj, i) => (
+                      <li key={i} className="text-xs text-slate-700 flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{obj}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {selectedSubject.methodologie && (
+                <div>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Méthodologie & Démarche de recherche
+                  </h4>
+                  <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+                    {selectedSubject.methodologie}
+                  </p>
+                </div>
+              )}
+
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
                   Prérequis et profil du candidat recherché
@@ -360,6 +424,9 @@ export const PublicCataloguePage: React.FC<PublicCataloguePageProps> = ({
                 <div>
                   <span className="text-slate-500 block">Directeur de thèse :</span>
                   <strong className="text-slate-900">{selectedSubject.supervisorName}</strong>
+                  {selectedSubject.supervisorEmail && (
+                    <span className="text-[11px] text-blue-600 block mt-0.5">{selectedSubject.supervisorEmail}</span>
+                  )}
                 </div>
                 {selectedSubject.coSupervisorName && (
                   <div>
