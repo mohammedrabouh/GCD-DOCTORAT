@@ -3,7 +3,6 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import pg from 'pg';
 import { USMBA_ESTABLISHMENTS, USMBA_LABORATORIES, USMBA_THESIS_SUBJECTS } from './src/data/usmbaSubjects.ts';
 
 dotenv.config();
@@ -18,38 +17,6 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// Database connection (PostgreSQL with graceful fallback)
-let pgPool: pg.Pool | null = null;
-let pgConnected = false;
-
-if (process.env.DATABASE_URL || process.env.PGHOST) {
-  try {
-    pgPool = new pg.Pool({
-      connectionString: process.env.DATABASE_URL,
-      host: process.env.PGHOST,
-      port: process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : 5432,
-      user: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-      ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('localhost') ? { rejectUnauthorized: false } : false,
-    });
-
-    pgPool.query('SELECT NOW()', (err) => {
-      if (err) {
-        console.warn('⚠️  [PostgreSQL] Connexion échouée, basculement automatique vers stockage mémoire:', err.message);
-        pgConnected = false;
-      } else {
-        console.log('✅ [PostgreSQL] Connexion établie avec succès à la base de données DOCTORIA.');
-        pgConnected = true;
-      }
-    });
-  } catch (err: any) {
-    console.warn('⚠️  [PostgreSQL] Initialisation impossible:', err.message);
-  }
-} else {
-  console.log('ℹ️  [DOCTORIA Backend] Mode autonome actif. Prêt avec catalogue USMBA et endpoints REST.');
-}
-
 // -------------------------------------------------------------
 // REST API ROUTES
 // -------------------------------------------------------------
@@ -60,7 +27,6 @@ app.get('/api/health', (_req, res) => {
     appName: 'DOCTORIA - Plateforme du Cycle Doctoral (USMBA Fès)',
     version: '2.4.0',
     timestamp: new Date().toISOString(),
-    database: pgConnected ? 'postgresql-connected' : 'in-memory-ready',
     academicYear: '2026-2027',
   });
 });
