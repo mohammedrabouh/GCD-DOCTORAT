@@ -40,11 +40,12 @@ import { AdminAccounts } from './pages/admin/AdminAccounts';
 import { AdminCampaigns } from './pages/admin/AdminCampaigns';
 import { AdminStructures } from './pages/admin/AdminStructures';
 import { AdminAuditLogs } from './pages/admin/AdminAuditLogs';
+import { AdminOcrDocuments } from './pages/admin/AdminOcrDocuments';
 
 import { ThesisSubject } from './types';
 
 function MainApp() {
-  const { user, loading } = useAuth();
+  const { user, loading, hasRole, logout } = useAuth();
 
   // Public portal state (when unauthenticated)
   const [showAuthPage, setShowAuthPage] = useState(false);
@@ -58,7 +59,7 @@ function MainApp() {
 
   // Set default tab when user logs in based on their role
   useEffect(() => {
-    if (user) {
+    if (user && user.status === 'ACTIF') {
       setShowAuthPage(false);
       switch (user.role) {
         case 'CANDIDAT':
@@ -75,7 +76,7 @@ function MainApp() {
           break;
       }
     }
-  }, [user]);
+  }, [user?.id, user?.role, user?.status]);
 
   if (loading) {
     return (
@@ -126,116 +127,128 @@ function MainApp() {
     );
   }
 
-  // 2. AUTHENTICATED DASHBOARD ROUTING (BY ROLE)
+  // Block suspended or non-active accounts from accessing any authenticated space
+  if (user.status !== 'ACTIF') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-lg p-6 max-w-md w-full text-center space-y-4">
+          <p className="text-sm font-bold text-rose-700">Accès suspendu</p>
+          <p className="text-xs text-slate-600">
+            Ce compte est suspendu ou en attente d’activation administrative.
+          </p>
+          <button
+            type="button"
+            onClick={logout}
+            className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800"
+          >
+            Retour à la connexion
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. AUTHENTICATED DASHBOARD ROUTING (STRICT ROLE VERIFICATION)
   const renderRoleContent = () => {
-    switch (user.role) {
-      // ----------------------------------------------------
-      // PROFIL 1 : CANDIDAT
-      // ----------------------------------------------------
-      case 'CANDIDAT':
-        switch (currentTab) {
-          case 'dashboard':
-            return (
-              <CandidateDashboard
-                onNavigateTab={(tab) => {
-                  setCurrentTab(tab);
-                }}
-              />
-            );
-          case 'catalogue':
-            return (
-              <PublicCataloguePage
-                isInsideDashboard={true}
-                onApplyToSubject={(subj) => {
-                  setPreSelectedSubject(subj);
-                  setCurrentTab('candidatures');
-                }}
-              />
-            );
-          case 'candidatures':
-            return (
-              <CandidateCandidatures
-                onNavigateTab={(tab) => setCurrentTab(tab)}
-                preSelectedSubject={preSelectedSubject}
-                onClearPreSelectedSubject={() => setPreSelectedSubject(null)}
-              />
-            );
-          case 'documents':
-            return <CandidateDocuments />;
-          case 'inscription':
-            return <CandidateRegistration />;
-          case 'reinscription':
-            return <CandidateReinscription />;
-          case 'profil':
-            return <CandidateProfile />;
-          default:
-            return (
-              <CandidateDashboard
-                onNavigateTab={(tab) => {
-                  setCurrentTab(tab);
-                }}
-              />
-            );
-        }
-
-      // ----------------------------------------------------
-      // PROFIL 2 : DIRECTEUR DE THÈSE
-      // ----------------------------------------------------
-      case 'DIRECTEUR_THESE':
-        switch (currentTab) {
-          case 'dt-dashboard':
-            return <SupervisorDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
-          case 'dt-sujets':
-            return <SupervisorSubjects />;
-          case 'dt-candidatures':
-            return <SupervisorCandidatures />;
-          case 'dt-doctorants':
-            return <SupervisorDoctorants />;
-          default:
-            return <SupervisorDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
-        }
-
-      // ----------------------------------------------------
-      // PROFIL 3 : DIRECTEUR DE STRUCTURE
-      // ----------------------------------------------------
-      case 'DIRECTEUR_STRUCTURE':
-        switch (currentTab) {
-          case 'ds-dashboard':
-            return <StructureDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
-          case 'ds-sujets':
-            return <StructureSubjects />;
-          case 'ds-admissions':
-            return <StructureAdmissions />;
-          case 'ds-delais':
-            return <StructureDelaisWaitlist />;
-          case 'ds-reinscriptions':
-            return <StructureReinscriptions />;
-          default:
-            return <StructureDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
-        }
-
-      // ----------------------------------------------------
-      // PROFIL 4 : ADMINISTRATEUR
-      // ----------------------------------------------------
-      case 'ADMINISTRATEUR':
-        switch (currentTab) {
-          case 'admin-dashboard':
-            return <AdminDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
-          case 'admin-comptes':
-            return <AdminAccounts />;
-          case 'admin-campagnes':
-            return <AdminCampaigns />;
-          case 'admin-structures':
-            return <AdminStructures />;
-          case 'admin-audit':
-            return <AdminAuditLogs />;
-          default:
-            return <AdminDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
-        }
-
-      default:
-        return <div>Rôle non reconnu.</div>;
+    if (user.role === 'CANDIDAT' && hasRole(['CANDIDAT'])) {
+      switch (currentTab) {
+        case 'dashboard':
+          return (
+            <CandidateDashboard
+              onNavigateTab={(tab) => {
+                setCurrentTab(tab);
+              }}
+            />
+          );
+        case 'catalogue':
+          return (
+            <PublicCataloguePage
+              isInsideDashboard={true}
+              onApplyToSubject={(subj) => {
+                setPreSelectedSubject(subj);
+                setCurrentTab('candidatures');
+              }}
+            />
+          );
+        case 'candidatures':
+          return (
+            <CandidateCandidatures
+              onNavigateTab={(tab) => setCurrentTab(tab)}
+              preSelectedSubject={preSelectedSubject}
+              onClearPreSelectedSubject={() => setPreSelectedSubject(null)}
+            />
+          );
+        case 'documents':
+          return <CandidateDocuments />;
+        case 'inscription':
+          return <CandidateRegistration />;
+        case 'reinscription':
+          return <CandidateReinscription />;
+        case 'profil':
+          return <CandidateProfile />;
+        default:
+          return (
+            <CandidateDashboard
+              onNavigateTab={(tab) => {
+                setCurrentTab(tab);
+              }}
+            />
+          );
+      }
     }
+
+    if (user.role === 'DIRECTEUR_THESE' && hasRole(['DIRECTEUR_THESE'])) {
+      switch (currentTab) {
+        case 'dt-dashboard':
+          return <SupervisorDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
+        case 'dt-sujets':
+          return <SupervisorSubjects />;
+        case 'dt-candidatures':
+          return <SupervisorCandidatures />;
+        case 'dt-doctorants':
+          return <SupervisorDoctorants />;
+        default:
+          return <SupervisorDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
+      }
+    }
+
+    if (user.role === 'DIRECTEUR_STRUCTURE' && hasRole(['DIRECTEUR_STRUCTURE'])) {
+      switch (currentTab) {
+        case 'ds-dashboard':
+          return <StructureDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
+        case 'ds-sujets':
+          return <StructureSubjects />;
+        case 'ds-admissions':
+          return <StructureAdmissions />;
+        case 'ds-delais':
+          return <StructureDelaisWaitlist />;
+        case 'ds-reinscriptions':
+          return <StructureReinscriptions />;
+        default:
+          return <StructureDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
+      }
+    }
+
+    if (user.role === 'ADMINISTRATEUR' && hasRole(['ADMINISTRATEUR'])) {
+      switch (currentTab) {
+        case 'admin-dashboard':
+          return <AdminDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
+        case 'admin-comptes':
+          return <AdminAccounts />;
+        case 'admin-campagnes':
+          return <AdminCampaigns />;
+        case 'admin-structures':
+          return <AdminStructures />;
+        case 'admin-ocr':
+          return <AdminOcrDocuments />;
+        case 'admin-audit':
+          return <AdminAuditLogs />;
+        default:
+          return <AdminDashboard onNavigateTab={(tab) => setCurrentTab(tab)} />;
+      }
+    }
+
+    return <div>Accès refusé : rôle non autorisé.</div>;
   };
 
   return (

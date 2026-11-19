@@ -12,6 +12,8 @@ import {
   ThesisSubject,
   Candidature,
   DocumentItem,
+  DocumentOcrData,
+  OcrVerificationStatus,
   ReinscriptionRequest,
   InternalNotification,
   AuditLog,
@@ -1404,6 +1406,112 @@ export const StorageService = {
     }
 
     return docs[index];
+  },
+
+  /**
+   * Save or update OCR extracted/edited text for a document.
+   * Security rule: candidate edits NEVER set status to VERIFIE; status stays EN_ATTENTE_VERIFICATION or ERREUR_OCR.
+   */
+  saveDocumentOcr(docId: string, ocrData: DocumentOcrData, actor?: User): DocumentItem {
+    const docs = this.getDocuments();
+    const index = docs.findIndex((d) => d.id === docId);
+    if (index === -1) throw new Error('Document introuvable.');
+
+    const safeStatus: OcrVerificationStatus =
+      ocrData.status === 'ERREUR_OCR' ? 'ERREUR_OCR' : 'EN_ATTENTE_VERIFICATION';
+
+    docs[index].ocr = {
+      ...docs[index].ocr,
+      ...ocrData,
+      status: safeStatus,
+      lastEditedAt: new Date().toISOString(),
+      lastEditedBy: actor ? `${actor.firstName} ${actor.lastName}` : docs[index].ocr?.lastEditedBy,
+    };
+    setItem(STORAGE_KEYS.DOCUMENTS, docs);
+
+    if (actor) {
+      this.logAudit({
+        userId: actor.id,
+        userName: `${actor.firstName} ${actor.lastName}`,
+        userRole: actor.role,
+        action: 'OCR_ENREGISTREMENT',
+        entityType: 'DOCUMENT',
+        entityId: docId,
+        details: `Enregistrement des informations OCR pour "${docs[index].fileName}" (statut : ${safeStatus}).`,
+      });
+    }
+
+    return docs[index];
+  },
+
+  /**
+   * Human verification of OCR output (Administrator).
+   * Strictly human-driven and NEVER auto-validates any candidature.
+   */
+  updateOcrVerificationStatus(
+    docId: string,
+    params: {
+      status: OcrVerificationStatus;
+      correctedText?: string;
+      errorMessage?: string;
+      reviewer: User;
+    }
+  ): DocumentItem {
+    const docs = this.getDocuments();
+    const index = docs.findIndex((d) => d.id === docId);
+    if (index === -1) throw new Error('Document introuvable.');
+
+    const now = new Date().toISOString();
+    const existingOcr: DocumentOcrData = docs[index].ocr || {
+      status: 'EN_ATTENTE_VERIFICATION',
+      extractedText: '',
+    };
+
+    docs[index].ocr = {
+      ...existingOcr,
+      status: params.status,
+      correctedText:
+        params.correctedText !== undefined ? params.correctedText : existingOcr.correctedText,
+      errorMessage:
+        params.status === 'ERREUR_OCR'
+          ? params.errorMessage || existingOcr.errorMessage || 'Erreur signalée lors de la vérification humaine.'
+          : undefined,
+      lastEditedAt: now,
+      lastEditedBy: `${params.reviewer.firstName} ${params.reviewer.lastName}`,
+      verifiedAt: params.status === 'VERIFIE' ? now : existingOcr.verifiedAt,
+      verifiedById: params.status === 'VERIFIE' ? params.reviewer.id : existingOcr.verifiedById,
+      verifiedByName:
+        params.status === 'VERIFIE'
+          ? `${params.reviewer.firstName} ${params.reviewer.lastName}`
+          : existingOcr.verifiedByName,
+    };
+
+    setItem(STORAGE_KEYS.DOCUMENTS, docs);
+
+    this.logAudit({
+      userId: params.reviewer.id,
+      userName: `${params.reviewer.firstName} ${params.reviewer.lastName}`,
+      userRole: params.reviewer.role,
+      action: 'OCR_VERIFICATION_HUMAINE',
+      entityType: 'DOCUMENT',
+      entityId: docId,
+      details: `Vérification OCR du document "${docs[index].fileName}" -> ${params.status}.`,
+    });
+
+    return docs[index];
+  },
+
+  /**
+   * Find candidatures referencing a given document ID (either dossier or registration file).
+   */
+  getCandidaturesByDocumentId(docId: string): Candidature[] {
+    return this.getCandidatures().filter((c) => {
+      const inMainDocs = Object.values(c.documents || {}).includes(docId);
+      const inRegDocs = c.registrationFile
+        ? Object.values(c.registrationFile.documents || {}).includes(docId)
+        : false;
+      return inMainDocs || inRegDocs;
+    });
   },
 
   // ==========================================

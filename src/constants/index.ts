@@ -2,7 +2,7 @@
  * DOCTORIA — Constants, Labels & Centralized Configuration
  */
 
-import { DocumentCategory, UserRole, CandidatureStatus, SubjectStatus, ReinscriptionStatus } from '../types';
+import { DocumentCategory, UserRole, CandidatureStatus, SubjectStatus, ReinscriptionStatus, OcrVerificationStatus } from '../types';
 
 export const DOCUMENT_CATEGORIES: Record<DocumentCategory, { label: string; description: string; requiredForCandidature: boolean }> = {
   CIN: {
@@ -245,6 +245,41 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   DIRECTEUR_STRUCTURE: 'Directeur de Structure (CED)',
   ADMINISTRATEUR: 'Administrateur Système',
 };
+
+export const OCR_STATUS_CONFIG: Record<
+  OcrVerificationStatus,
+  { label: string; textClass: string; bgClass: string; borderClass: string }
+> = {
+  EN_ATTENTE_VERIFICATION: {
+    label: 'En attente de vérification',
+    textClass: 'text-amber-800',
+    bgClass: 'bg-amber-50',
+    borderClass: 'border-amber-200',
+  },
+  VERIFIE: {
+    label: 'Vérifié',
+    textClass: 'text-emerald-800',
+    bgClass: 'bg-emerald-50',
+    borderClass: 'border-emerald-200',
+  },
+  ERREUR_OCR: {
+    label: 'Erreur OCR',
+    textClass: 'text-rose-800',
+    bgClass: 'bg-rose-50',
+    borderClass: 'border-rose-200',
+  },
+};
+
+export const OCR_LANGUAGE_OPTIONS = [
+  { value: 'fra+ara+eng', label: 'Français + Arabe + Anglais' },
+  { value: 'fra', label: 'Français uniquement' },
+  { value: 'ara', label: 'Arabe uniquement' },
+  { value: 'eng', label: 'Anglais uniquement' },
+] as const;
+
+export const MAX_DOCUMENT_SIZE_BYTES = 15 * 1024 * 1024; // 15 Mo
+export const ALLOWED_DOCUMENT_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+export const ALLOWED_DOCUMENT_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png'];
 
 // Simple cryptographic SHA-256 helper for client storage
 export async function hashPassword(plainText: string): Promise<string> {

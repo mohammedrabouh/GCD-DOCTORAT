@@ -41,9 +41,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await StorageService.initialize();
         const savedSession = localStorage.getItem(SESSION_KEY);
         if (savedSession) {
-          const sessionUser = JSON.parse(savedSession) as User;
-          // Re-verify user in storage
-          const freshUser = StorageService.getUserById(sessionUser.id);
+          const parsed = JSON.parse(savedSession) as { id?: string };
+          // Re-verify user and active status in storage
+          const freshUser = parsed?.id ? StorageService.getUserById(parsed.id) : undefined;
           if (freshUser && freshUser.status === 'ACTIF') {
             setUser(freshUser);
           } else {
@@ -78,9 +78,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: 'Mot de passe incorrect. Veuillez vérifier votre saisie.' };
       }
 
-      // Success
+      // Success — store only session identifier (never store passwordHash in session key)
       setUser(existingUser);
-      localStorage.setItem(SESSION_KEY, JSON.stringify(existingUser));
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ id: existingUser.id }));
 
       // Audit log
       StorageService.logAudit({
@@ -133,7 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Auto login newly registered candidate
       setUser(newUser);
-      localStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ id: newUser.id }));
 
       return { success: true };
     } catch (err: unknown) {

@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import http from 'node:http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -11,8 +12,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3000', 10);
 const isProduction = process.env.NODE_ENV === 'production';
+const portArgIndex = process.argv.indexOf('--port');
+const cliPort = portArgIndex !== -1 ? process.argv[portArgIndex + 1] : undefined;
+const envPort = !isProduction && process.env.PORT === '8080' ? '3000' : process.env.PORT;
+const PORT = parseInt(cliPort || envPort || '3000', 10);
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -114,10 +118,15 @@ app.get('/api/stats', (_req, res) => {
 // -------------------------------------------------------------
 
 async function startServer() {
+  const httpServer = http.createServer(app);
+
   if (!isProduction) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: process.env.DISABLE_HMR === 'true' ? false : { server: httpServer },
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
@@ -128,7 +137,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Serveur DOCTORIA opérationnel sur http://0.0.0.0:${PORT}`);
   });
 }

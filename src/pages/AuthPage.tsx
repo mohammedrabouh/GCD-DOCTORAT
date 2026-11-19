@@ -191,6 +191,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccessRedirect, onBackToC
                   <input
                     type="email"
                     required
+                    autoComplete="email"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     placeholder="nom@universite.ma"
@@ -220,6 +221,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccessRedirect, onBackToC
                   <input
                     type="password"
                     required
+                    autoComplete="current-password"
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="••••••••••••"
@@ -237,67 +239,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccessRedirect, onBackToC
                   <span>Authentification en cours...</span>
                 ) : (
                   <>
-                    <span>Accéder à mon espace</span>
+                    <span>Se connecter</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
-
-              {/* Comptes institutionnels USMBA certifiés pour démonstration et évaluation */}
-              <div className="pt-4 border-t border-slate-200">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Profils USMBA de démonstration (1-clic) :
-                </p>
-                <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginEmail('admin.cedoc@usmba.ac.ma');
-                      setLoginPassword('DoctoriaAdmin2026!');
-                    }}
-                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
-                  >
-                    <span className="font-bold text-slate-800 block truncate">Administrateur</span>
-                    <span className="text-[10px] text-slate-500 truncate block">admin.cedoc@usmba.ac.ma</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginEmail('abdelali.kaaouachi@usmba.ac.ma');
-                      setLoginPassword('DirecteurStructure2026!');
-                    }}
-                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
-                  >
-                    <span className="font-bold text-slate-800 block truncate">Dir. Structure</span>
-                    <span className="text-[10px] text-slate-500 truncate block">Prof. A. Kaaouachi</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginEmail('mohammed.qaraqe@usmba.ac.ma');
-                      setLoginPassword('DirecteurThese2026!');
-                    }}
-                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
-                  >
-                    <span className="font-bold text-slate-800 block truncate">Directeur Thèse</span>
-                    <span className="text-[10px] text-slate-500 truncate block">Prof. M. Qaraqe</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginEmail('youssef.elamrani@usmba.ac.ma');
-                      setLoginPassword('Candidat2026!');
-                    }}
-                    className="p-2 text-left bg-slate-50 hover:bg-blue-50 hover:border-blue-300 border border-slate-200 rounded-lg transition-colors"
-                  >
-                    <span className="font-bold text-slate-800 block truncate">Candidat / Doctorant</span>
-                    <span className="text-[10px] text-slate-500 truncate block">Y. El Amrani (Démo)</span>
-                  </button>
-                </div>
-              </div>
 
               <div className="pt-3 border-t border-slate-100 text-center">
                 <button
@@ -331,7 +277,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccessRedirect, onBackToC
                     required
                     value={regFirstName}
                     onChange={(e) => setRegFirstName(e.target.value)}
-                    placeholder="Youssef"
+                    placeholder="Votre prénom"
                     className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -344,7 +290,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onSuccessRedirect, onBackToC
                     required
                     value={regLastName}
                     onChange={(e) => setRegLastName(e.target.value)}
-                    placeholder="El Amrani"
+                    placeholder="Votre nom"
                     className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   />
                 </div>

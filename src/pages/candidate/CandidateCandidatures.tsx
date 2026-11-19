@@ -23,6 +23,7 @@ import {
   X,
   ArrowRight,
   Sparkles,
+  ScanText,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -33,7 +34,7 @@ import {
   DocumentCategory,
 } from '../../types';
 import { StorageService, subscribeToStorage } from '../../services/storage';
-import { CANDIDATURE_STATUS_CONFIG, DOCUMENT_CATEGORIES } from '../../constants';
+import { CANDIDATURE_STATUS_CONFIG, DOCUMENT_CATEGORIES, OCR_STATUS_CONFIG } from '../../constants';
 import { DocumentCaptureModal } from '../../components/DocumentCaptureModal';
 import { DocumentViewerModal } from '../../components/DocumentViewerModal';
 import { ConfirmModal } from '../../components/ConfirmModal';
@@ -403,7 +404,19 @@ export const CandidateCandidatures: React.FC<CandidateCandidaturesProps> = ({
 
                     <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
                       {attachedDoc ? (
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {attachedDoc.ocr && (
+                            <span
+                              className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded border ${
+                                OCR_STATUS_CONFIG[attachedDoc.ocr.status].bgClass
+                              } ${OCR_STATUS_CONFIG[attachedDoc.ocr.status].textClass} ${
+                                OCR_STATUS_CONFIG[attachedDoc.ocr.status].borderClass
+                              }`}
+                            >
+                              <ScanText className="w-3 h-3" />
+                              {OCR_STATUS_CONFIG[attachedDoc.ocr.status].label}
+                            </span>
+                          )}
                           <button
                             type="button"
                             onClick={() => setViewingDoc(attachedDoc)}

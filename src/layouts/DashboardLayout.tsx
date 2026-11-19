@@ -23,6 +23,7 @@ import {
   Building2,
   Clock,
   Award,
+  ScanText,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { ROLE_LABELS } from '../constants';
@@ -78,6 +79,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           { id: 'admin-comptes', label: 'Gestion des Comptes', icon: Shield },
           { id: 'admin-campagnes', label: 'Campagnes Doctorales', icon: Calendar },
           { id: 'admin-structures', label: 'Établissements & Labos', icon: Building2 },
+          { id: 'admin-ocr', label: 'Vérification OCR', icon: ScanText },
           { id: 'admin-audit', label: 'Journaux d’Audit', icon: Layers },
         ];
       default:

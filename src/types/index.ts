@@ -149,6 +149,27 @@ export type DocumentCategory =
 
 export type DocumentStatus = 'EN_ATTENTE' | 'VALIDE' | 'REFUSE';
 
+export type OcrVerificationStatus = 'EN_ATTENTE_VERIFICATION' | 'VERIFIE' | 'ERREUR_OCR';
+
+export type OcrExtractionMethod = 'IMAGE_OCR' | 'PDF_TEXT' | 'PDF_OCR';
+
+export interface DocumentOcrData {
+  status: OcrVerificationStatus;
+  extractedText: string;
+  correctedText?: string;
+  method?: OcrExtractionMethod;
+  languages?: string;
+  confidence?: number;
+  pageCount?: number;
+  errorMessage?: string;
+  analyzedAt?: string;
+  lastEditedAt?: string;
+  lastEditedBy?: string;
+  verifiedAt?: string;
+  verifiedById?: string;
+  verifiedByName?: string;
+}
+
 export interface DocumentItem {
   id: string;
   ownerId: string;
@@ -164,6 +185,8 @@ export interface DocumentItem {
   isCameraCapture: boolean;
   // Reference to IndexedDB blob storage
   storageKey: string;
+  // OCR extracted text & human verification metadata (never stored as base64)
+  ocr?: DocumentOcrData;
 }
 
 export interface RegistrationFile {
